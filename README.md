@@ -48,7 +48,7 @@ node.js
 
 ![image-20220924104837848](README.assets/image-20220924104837848.png)
 
-注：http://netmusic.vip.cpolar.cn为我本人使用cpolar创建的隧道，有时会断，供体验，真正日常使用还请部署到自己的服务器。
+注：http://netmusic.vip.cpolar.cn 为我本人使用cpolar创建的隧道，有时会断，供体验，真正日常使用还请部署到自己的服务器。
 
 完成配置后您有多种方式可以通过Nreal眼镜打开，比如
 
