@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+	<title>首页</title>
+<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+<!-- Custom Theme files -->
+<link href="css/font-awesome.min.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/popuo-box.css" rel="stylesheet" type="text/css" media="all" />
+<link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
+<!-- //Custom Theme files -->
+
+</head>
+<body style="text-transform: none;! important">
+<h1>Nreal-网易云音乐</h1>
+<div class="main-agileits" id="app" >
+<!--form-stars-here-->
+	<p style="float: right;color: #fff;" @click="changeMethod">切换登录方式</p>
+		<div class="form-w3-agile">
+			<h2>网易云音乐账号登录</h2>
+			<div class="form-sub-w3">
+				<input v-model="phone" type="text" name="Username" placeholder="手机号" required="" />
+				<p style="margin-top: -13px;color: red;" v-if="phoneShow">请输入完整</p>
+			<div class="icon-w3">
+				<i class="fa fa-user" aria-hidden="true"></i>
+			</div>
+			</div>
+			<div class="form-sub-w3">
+				<input v-model="captcha" v-if="method_capt" type="text" name="code" placeholder="验证码" required="" />
+				<input v-model="password" v-if="method_pwd" type="text" name="code" placeholder="密码" required="" />
+				<p style="margin-top: -13px;color: red;" v-if="captchaShow">请输入完整</p>
+			<div class="icon-w3">
+				<i class="fa fa-unlock-alt" aria-hidden="true"></i>
+			</div>
+			</div>
+			<p class="p-bottom-w3ls"v-if="method_capt" >使用验证码登录<a class="w3_play_icon1" href="#small-dialog1" @click="confirm()">点击获取验证码</a></p>
+			
+			<div class="submit-w3l">
+				<input type="submit" value="登录/验证码" @click="confirmLogin" v-if="method_capt">
+				<input type="submit" value="登录" @click="confirmLoginPasswrod" v-if="method_pwd">
+				<p style="color: red;text-align: center;margin-top: 10px;" v-if="warnShow">{{warnMessage}}</p>
+			</div>
+		</div>
+	<!-- <a href="./pages/main.html">前往下一个页面</a> -->
+<!--//form-ends-here-->
+</div>
+
+
+	<!-- //copyright --> 
+	<script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+	<!-- pop-up-box -->  
+	<script src="js/jquery.magnific-popup.js" type="text/javascript"></script>
+	<!--//pop-up-box -->
+	<script src="js/api.js" type="text/javascript"></script>
+	
+	<script src="js/vue.js"></script>
+	
+	<script src="js/axios-0.18.0.js"></script>
+
+	<script>
+		$(document).ready(function() {
+			$('.w3_play_icon,.w3_play_icon1,.w3_play_icon2').magnificPopup({
+				type: 'inline',
+				fixedContentPos: false,
+				fixedBgPos: true,
+				overflowY: 'auto',
+				closeBtnInside: true,
+				preloader: false,
+				midClick: true,
+				removalDelay: 300,
+				mainClass: 'my-mfp-zoom-in'
+			});															
+		});
+	</script>
+<script>
+	var vue = new Vue({
+		el: '#app',
+		data: {
+			http: '',
+			phone:"",
+			password:"",
+			message:"",
+			captcha:"",
+			phoneShow : false,
+			captchaShow : false,
+			warnShow:false,
+			warnMessage:"",
+			method_pwd:true,
+			method_capt:false
+		},
+		
+		created() {
+			// console.log(config)
+			this.http = config.baseurl
+			var name = JSON.parse(localStorage.getItem("name"))
+			// console.log(name)
+			if(name != null){
+				if(name.data.account.id){
+					 window.location.href="pages/main.html"; 
+				}
+			}
+		},
+
+		methods: {
+			///login/cellphone?phone=xxx&captcha=1234
+			confirmLoginPasswrod(){
+				var _this =this
+				if(this.phone == ""){
+					this.phoneShow = true
+				}else if(this.password == ""){
+					this.captchaShow = true
+				}else{
+					this.phoneShow = false
+					this.captchaShow = false
+					axios.get(this.http+"/login/cellphone?phone="+this.phone+"&password="+this.password,{
+						headers:{
+							'Content-Type':'application/json',
+						}
+					}).catch((res) =>{
+						this.warnShow = true
+						this.warnMessage = "登录失败"
+					}).then((res) => {
+						//判断当前操作是否成功
+						if(res.data.code == 502){
+							this.warnShow = true
+							this.warnMessage = "密码错误"
+						}else if(res.data.code == 200){
+							console.log(res)
+							localStorage.setItem('name', JSON.stringify(res))
+							window.location.href="pages/main.html"; 
+						}
+					}).finally(() => {
+					});
+				}
+			},
+			changeMethod(){
+				this.method_pwd = !this.method_pwd;
+				this.method_capt = !this.method_capt;
+			},
+			confirmLogin(){
+				var _this =this
+				if(this.phone == ""){
+					this.phoneShow = true
+				}else if(this.captcha == ""){
+					this.captchaShow = true
+				}else{
+					this.phoneShow = false
+					this.captchaShow = false
+					axios.get(this.http+"/login/cellphone?phone="+this.phone+"&captcha="+this.captcha,{
+						headers:{
+							'Content-Type':'application/json',
+						}
+					}).catch((res) =>{
+						this.warnShow = true
+						this.warnMessage = "登录失败"
+					}).then((res) => {
+						//判断当前操作是否成功
+						console.log(res)
+						if(res.code == 503){
+							this.warnShow = true
+							this.warnMessage = "验证码错误"
+						}else if(res.data.code == 200){
+							console.log(res)
+							console.log("登录成功")
+							localStorage.setItem('name', JSON.stringify(res))
+							window.location.href="pages/main.html"; 
+						}
+					}).finally(() => {
+					});
+				}
+			},
+			confirm(){
+				console.log("ee")
+				this.confirmPhone()
+			},
+			confirmPhone(){
+				var _this =this
+				axios.post(this.http+"/cellphone/existence/check?phone="+this.phone,{
+				}).catch((res) =>{
+					this.warnShow = true
+					this.warnMessage = "服务器出现故障,请更换服务器"
+				}).then((res) => {
+					//判断当前操作是否成功
+					console.log(res.data.code)
+					console.log(res.data)
+					if(res.data.code == 400){
+						this.warnShow = true
+						this.warnMessage = res.data.message
+					}else if(res.data.code == 200){
+						if(res.data.exist < 0){
+							this.warnShow = true
+							this.warnMessage = "没有当前手机号,请检查手机号输入是否正确"
+						}else{
+							this.warnShow = true
+							this.warnMessage = "信息已经成功发送至"+res.data.cellphone+",请注意查收"
+							_this.confirmMessage()
+						}
+					}
+				}).finally(() => {
+				});
+			},
+			confirmMessage(){
+				//captcha/sent
+				var _this =this
+				axios.post(this.http+"/captcha/sent?phone="+this.phone,{
+				}).then((res) => {
+					//判断当前操作是否成功
+					console.log(res)
+				}).finally(() => {
+				});
+			},
+		}
+	})
+
+</script>
+
+</body>
+</html>

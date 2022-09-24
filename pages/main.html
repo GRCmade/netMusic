@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+			<title>主界面</title>
+		<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+		<!-- Custom Theme files -->
+		<link href="../css/font-awesome.min.css" rel="stylesheet" type="text/css" media="all">
+		<link href="../css/popuo-box.css" rel="stylesheet" type="text/css" media="all" />
+		<link href="../css/style.css" rel="stylesheet" type="text/css" media="all" />
+	</head>
+	<body>
+		<div id="main" style="text-transform: none;! important">
+			<div class="container" style="color: #fff;">
+				<div class="row" style="margin-top: 40px;">
+					<div class="col-xs-2">
+						<img :src="songImg" alt="请选择歌单,选择后随机播放歌单中所有歌曲">
+						<p style="text-align: center;">{{songName}}</p>
+					</div>
+					<div class="col-xs-10">
+						<div class="row">
+							<div class="col-xs-11" style="padding-left: 10%;">
+								<div class="progress" style="height: 10px;">
+								  <div class="progress-bar" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" :style="pro">
+								    
+								  </div>
+								</div>
+							</div>
+							
+						</div>
+						<div class="row">
+							<!-- <div class="col-xs-12">{{LyricList[0]}}</div>
+							<div class="col-xs-12">{{LyricList[1]}}</div> -->
+							<div class="col-xs-12" style="padding-left: 10%;margin-bottom: 15px;">{{LyricList[1]}}</div>
+							<div class="col-xs-12 text-right" style="padding-right: 10%;float: right;">{{LyricList[0]}}</div>
+						</div>
+						<div class="row" style="margin-top: 20px;">
+							<div class="col-xs-12" style="text-align: center;">
+								<!-- <audio  muted="muted" @pause="onPause" @play="onPlay" controls :src="music" id="myaudio"></audio>
+								<a href="#" id="play" onclick="control()">播放 / 暂停</a>
+								<a href="#" onclick="repeat()">重新开始</a>
+								<a href="#" onclick="con()">停止及时</a> -->
+								<audio
+								  autoplay
+								  ref="audio"
+								  :src="music"
+								  @ended="audioEnd"
+								></audio>
+								<div class="col-xs-12" style="text-align: center;">
+									<button @click="handlePlayAudio" type="button" class="btn btn-default btn-sm">
+									  <span class="glyphicon glyphicon-play"></span>
+									</button>
+									<button @click="audioPause" type="button" class="btn btn-default btn-sm">
+									  <span class="glyphicon glyphicon-stop"></span>
+									</button>
+									<button @click="audioNext" type="button" class="btn btn-default btn-sm">
+									  <span class="glyphicon glyphicon-fast-forward"></span>
+									</button>
+								</div>
+								<!-- <p >播放</p>
+								<p @click="audioPause">暂停</p> -->
+								<!-- <p>{{songId}}</p> -->
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="row" style="margin-top: 20px;">
+					
+					<div class="col-xs-2 text-center" v-if="form">
+						<img :src="user_img" style="border-radius: 50%;">
+						<p style="text-align: center; margin-top: 10px;">{{user_name}}</p>
+						<button @click="loginOut()" type="button" class="btn btn-danger " style="margin-top: 10px;">退出登录</button>
+					</div>
+					<div class="col-xs-9" v-if="form">
+						<div class="col-xs-6" v-for="(item,i) in songForm">
+							<!-- <p style="text-align: center;"></p> -->
+							<div class="thumbnail">
+								<img @click="getSongFormInfo(item.id)" :src="item.coverImgUrl">
+								<div class="caption">
+									<h3 style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">{{item.name}}</h3>
+									<!-- <p>一些示例文本。一些示例文本。</p> -->
+									<p>
+										<a  @click="getSongFormInfoDetial(item.id)" href="#" class="btn btn-primary" role="button">
+											添加播放列表
+										</a>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-xs-11" v-if="hot">
+						<!-- 热门歌曲 -->
+						<div class="row" style="margin-bottom: 15px;margin-left: 20px;">
+							<h2 style="font-size: 25px;">热门歌单</h2>
+						</div>
+						<div class="row">
+							<div class="col-xs-4" v-for="(item,i) in hotList">
+								<!-- <p style="text-align: center;"></p> -->
+								<div class="thumbnail">
+									<img @click="getSongFormInfo(item.id)" :src="item.picUrl">
+									<div class="caption">
+										<h3 style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">{{item.name}}</h3>
+										<!-- <p>一些示例文本。一些示例文本。</p> -->
+										<p>
+											<a  @click="getSongFormInfoDetial(item.id)" href="#" class="btn btn-primary" role="button">
+												添加播放列表
+											</a>
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row" style="margin-bottom: 15px;margin-left: 20px;">
+							<h2 style="font-size: 25px;">网易云歌榜单</h2>
+						</div>
+						<div class="row">
+							<div class="col-xs-4" v-for="(item,i) in hotRankList">
+								<!-- <p style="text-align: center;"></p> -->
+								<div class="thumbnail">
+									<img @click="getSongFormInfo(item.id)" :src="item.coverImgUrl">
+									<div class="caption">
+										<h3 style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">{{item.name}}</h3>
+										<!-- <p>一些示例文本。一些示例文本。</p> -->
+										<p>
+											<a  @click="getSongFormInfoDetial(item.id)" href="#" class="btn btn-primary" role="button">
+												添加播放列表
+											</a>
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+					</div>
+					
+					<div class="col-xs-11" v-if="MeanuMusic">
+						<div class="row">
+							<div class="col-xs-3"></div>
+							<div class="col-xs-6">
+								<div class="thumbnail">
+									<img :src="meanuPic">
+									<div class="caption">
+										<h3 style="font-size:22px;">{{meanuName}}</h3>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						<div class="row" >
+							<div @click="playMusic(item.id)" class="col-xs-6" v-for="(item,i) in meanuMusic">
+								<div class="row" style="margin-top:20px">
+									<div class="col-xs-4">
+										<img :src="item.al.picUrl">
+									</div>
+									<div class="col-xs-8">
+										<p style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;font-size:20px;margin-bottom:20px">{{item.name}}</p>
+										<span v-for="(it,i) in item.ar" >
+											{{it.name}}
+										</span>
+									</div>
+								</div>
+							</div>
+							
+						</div>
+					</div>
+					
+					
+					<div class="col-xs-11" v-if="!form && !hot &&!MeanuMusic"></div>
+					<div class="col-xs-1" >
+						
+						<div class="row">
+							<a v-bind:class="MeanuClick" @click="hideMeanu()"  href="#" class="btn btn-default btn-lg">
+								<span class="glyphicon glyphicon-th-list"></span>
+							</a>
+						</div>
+						<div  class="row" style="margin-top: 5px;" v-if="!formSymbol">
+							<a v-bind:class="formClick" @click="hideForm()" href="#" class="btn btn-default btn-lg">
+								<span class="glyphicon glyphicon-star"></span>
+							</a>
+						</div>
+						<div class="row" style="margin-top: 5px;" v-if="!hotSymbol">
+							<a  v-bind:class="hotClick" @click="hideHot()" href="#" class="btn btn-default btn-lg">
+								<span class="glyphicon glyphicon-fire"></span>
+							</a>
+						</div>
+						<div  class="row" style="margin-top: 5px;" v-if="!MeanuMusicSymbol">
+							<a v-bind:class="MeanuMusicClick" @click="hideMeanuMusic()" href="#" class="btn btn-default btn-lg">
+								<span class="glyphicon glyphicon-music"></span>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/jquery-2.1.4.min.js"></script>
+	<script src="../js/vue.js"></script>
+	<script src="../js/axios-0.18.0.js"></script>
+	<script src="../js/api.js" type="text/javascript"></script>
+
+<style>
+	.MeanuClick{
+		background-color: blue;
+	}
+</style>
+
+<script>
+	var vue = new Vue({
+		el: '#main',
+		audio:{
+			
+		},
+		data: {
+			http:"",
+			user_id:"",
+			music:'',
+			user_img:'',
+			user_name:'',
+			songId:'',
+			songName:'',
+			songImg:'',
+			songLyric:'',
+			LyricList:["Nreal-网易云音乐"],
+			songForm:[],
+			songList:[],
+			songNum:[],
+			num:-1,
+			timeint:"",
+			isPlay:false,
+			
+			audioSymbol:true,
+			pro:"width: 0%;",
+			songTime:-1,
+			Meanu:true,
+			
+			form:true,
+			hot:false,
+			MeanuMusic:false,
+			
+			formSymbol:false,
+			hotSymbol:false,
+			MeanuMusicSymbol:false,
+			MeanuClick:'',
+			formClick:'btn-warning',
+			hotClick:'',
+			MeanuMusicClick:'',
+			//热门歌单列表
+			hotList:[],
+			hotRankList:[],
+			//歌曲列表
+			meanuMusic:[],
+			authorList:[],
+			meanuPic:'',
+			meanuName:'',
+		},
+		
+		created() {
+			// console.log(config)
+			this.http = config.baseurl
+			var name = JSON.parse(localStorage.getItem("name"))
+			this.user_id = name.data.account.id
+			this.user_name = name.data.profile.nickname
+			this.user_img = name.data.profile.avatarUrl
+			this.getSong()
+			//获取歌单
+			this.getSongForm()
+			//获取热门歌曲
+			this.getHotForm()
+			this.getHotFormRank()
+		},
+		
+		methods: {
+			playMusic(id){
+				console.log(id)
+				this.songId = id
+				this.isPlay = false
+				if(this.timeint > 0){
+					clearInterval(this.timeint)
+					this.timeint = 0
+				}
+				this.getSong()
+				//控制播放
+				this.audioSymbol = true
+				this.handlePlayAudio()
+				this.LyricList = ['Nreal-网易云音乐']
+			},
+			//歌曲列表
+			getMeanuSongInfo(){
+				// console.log(this.songList)
+				var strMusic = ""
+				for(var i=0;i<this.songList.length;i++){
+					strMusic+=this.songList[i]
+					if(i != this.songList.length-1){
+						strMusic+=","
+					}
+				}
+				axios.get(this.http+"/song/detail?ids="+strMusic,{
+					headers:{
+						'Content-Type':'application/json',
+					}
+				}).then((res) => {
+					// console.log(res)
+					this.meanuMusic = res.data.songs
+					// console.log(this.MeanuMusic)
+				}).finally(() => {
+				});
+			},
+			//热门部分
+			getHotFormRank(){
+				var _this = this
+				axios.get(_this.http+"/toplist",{
+					headers:{
+						'Content-Type':'application/json',
+					}
+				}).then((res) => {
+					this.hotRankList = res.data.list
+					// console.log(this.hotRankList)
+				})
+			},
+			getHotForm(){
+				var _this = this
+				axios.get(_this.http+"/personalized?limit=6",{
+					headers:{
+						'Content-Type':'application/json',
+					}
+				}).then((res) => {
+					this.hotList = res.data.result
+					// console.log(this.hotList)
+				})
+			},
+			//我的歌单部分
+			loginOut(){
+				localStorage.removeItem("name")
+				window.location.href="../index.html"; 
+			},
+			putMuanuInfo(id){
+				for(var i=0;i<this.songForm.length;i++){
+					if(this.songForm[i].id == id){
+						this.meanuPic = this.songForm[i].coverImgUrl
+						this.meanuName = this.songForm[i].name
+					}
+				}
+				for(var i=0;i<this.hotList.length;i++){
+					if(this.hotList[i].id == id){
+						console.log(this.hotList[i])
+						this.meanuPic = this.hotList[i].picUrl
+						this.meanuName = this.hotList[i].name
+					}
+				}
+				for(var i=0;i<this.hotRankList.length;i++){
+					if(this.hotRankList[i].id == id){
+						this.meanuPic = this.hotRankList[i].coverImgUrl
+						this.meanuName = this.hotRankList[i].name
+					}
+				}
+			},
+			getSongFormInfoDetial(id){
+				var _this = this
+				// console.log(this.songForm)
+				this.putMuanuInfo(id)
+				axios.get(_this.http+"/playlist/detail?id="+id,{
+					headers:{
+						'Content-Type':'application/json',
+					}
+				}).then((res) => {
+					// console.log(res)
+					_this.songList = []
+					for(var i=0;i<res.data.privileges.length;i++){
+						_this.songList.push(res.data.privileges[i].id)
+					}
+					// console.log(_this.songList)
+					this.hideMeanuMusic()
+					this.getMeanuSongInfo()
+				})
+			},
+			getSongFormInfo(id){
+				//歌单id
+				var _this = this
+				this.putMuanuInfo(id)
+				axios.get(_this.http+"/playlist/detail?id="+id,{
+					headers:{
+						'Content-Type':'application/json',
+					}
+				}).then((res) => {
+					// console.log(res)
+					_this.songList = []
+					for(var i=0;i<res.data.privileges.length;i++){
+						_this.songList.push(res.data.privileges[i].id)
+					}
+					// console.log(_this.songList)
+					this.getMeanuSongInfo()
+					_this.getRandomId()
+				})
+			},
+			getSongForm(){
+				axios.get(this.http+"/user/playlist?uid="+this.user_id,{
+					headers:{
+						'Content-Type':'application/json',
+					}
+				}).then((res) => {
+					// console.log(res)
+					this.songForm = res.data.playlist
+					// console.log(this.songForm)
+				}).finally(() => {
+				});
+			},
+			
+			//菜单控制
+			hideMeanuMusic(){
+				this.form = false
+				this.hot = false
+				this.MeanuMusic = true
+				this.formClick = ""
+				this.hotClick = ""
+				this.MeanuMusicClick = "btn-info"
+			},
+			hideHot(){
+				this.form = false
+				this.hot = true
+				this.MeanuMusic = false
+				this.formClick = ""
+				this.hotClick = "btn-danger"
+				this.MeanuMusicClick = ""
+			},
+			hideForm(){
+				this.form = true
+				this.hot = false
+				this.MeanuMusic = false
+				this.formClick = "btn-warning"
+				this.hotClick = ""
+				this.MeanuMusicClick = ""
+			},
+			hideMeanu(){
+				// this.Meanu = false
+				if(this.form == this.hot == this.MeanuMusic == false){
+					//打开选项卡，默认为form
+					this.form = true
+					this.formSymbol = false
+					this.hotSymbol = false
+					this.MeanuMusicSymbol = false
+					this.MeanuClick = ""
+					this.formClick = "btn-warning"
+					this.hotClick = ""
+					this.MeanuMusicClick = ""
+					
+				}else{
+					//关闭所有选项卡
+					this.form = false
+					this.hot = false
+					this.MeanuMusic = false
+					this.MeanuClick = "btn-primary"
+					this.formSymbol = true
+					this.hotSymbol = true
+					this.MeanuMusicSymbol = true
+				}
+			},
+			
+			//播放器部分
+			getSong(){
+				axios.get(this.http+"/song/url?id="+this.songId,{
+					headers:{
+						'Content-Type':'application/json',
+					}
+				}).then((res) => {
+					// console.log(res)
+					this.music = res.data.data[0].url
+					this.songTime = res.data.data[0].time
+					// console.log(this.music)
+					this.getSongInfo()
+					// this.getSongLyric()
+				})
+			},
+			getSongInfo(){
+				axios.get(this.http+"/song/detail?ids="+this.songId,{
+					headers:{
+						'Content-Type':'application/json',
+					}
+				}).then((res) => {
+					// console.log(res)
+					this.songName = res.data.songs[0].name
+					this.songImg = res.data.songs[0].al.picUrl
+				}).finally(() => {
+				});
+			},
+			audioEnd(){
+				this.getRandomId()
+			},
+			audioPause() {
+			  this.$refs.audio.pause()
+			  this.onPause()
+			  this.audioSymbol = true
+			},
+			audioNext(){
+				this.getRandomId()
+			},
+			getRandomId(){
+				this.isPlay = false
+				if(this.timeint > 0){
+					clearInterval(this.timeint)
+					this.timeint = 0
+				}
+				var _this = this
+				if(_this.songList.length>0){
+					_this.songNum = Math.round(Math.random()*(_this.songList.length-1))
+					// console.log(_this.songNum)
+					if(this.songNum != this.num){
+						this.songId = this.songList[this.songNum]
+						console.log(_this.songList[_this.songNum])
+					}else{
+						if(this.songNum == 0){
+							this.songNum = this.songNum + 1
+						}
+						else if(this.songNum == this.songList.length-1){
+							this.songNum = this.songNum - 1
+						}else{
+							this.songNum = this.songNum + 1
+						}
+						this.songId = this.songList[this.songNum]
+						console.log(_this.songList[_this.songNum])
+					}
+					this.num = this.songNum
+				}
+			
+				this.getSong()
+				//控制播放
+				this.audioSymbol = true
+				this.handlePlayAudio()
+				this.LyricList = ['Nreal-网易云音乐']
+			},
+			handlePlayAudio() {
+				this.$refs.audio.play()
+				this.isPlay = true
+				if(this.audioSymbol){
+					this.onPlay()
+				}
+				this.audioSymbol = false
+			},
+			
+			onPlay(){
+				console.log('play----')
+				this.GetLrc()
+			},
+			onPause(){
+				console.log('pause----')
+				clearInterval(this.timeint)
+			},
+			GetLrc(){
+				let lrcob = new Lrc(this.http+'/lyric?id='+this.songId);
+				lrcob.getLrc();// 加载lrc歌词文件
+				// let time = 0;
+				var _this = this
+				var str = ""
+				var audio = ""
+				var strReal = ""
+				var x = 0
+				var percent = "width: 0%;"
+				this.timeint = setInterval(function(){// 模仿audio,video时间进度条
+				    //lrcob.getWord(time,true,50);// 模糊获取歌词 50为模糊值
+				    // lrcob.getWord(time,false); // 精确获取歌词
+					// var audio = document.getElementById('myaudio');
+					// console.log(_this.$refs.audio.currentTime*1000 / _this.songTime)
+					_this.pro = "width: "+_this.$refs.audio.currentTime*100000 / _this.songTime+"%;"
+					// console.log(lrcob.getWord(Math.trunc(audio.currentTime*1000),true,200))
+					var str = lrcob.getWord(Math.trunc(_this.$refs.audio.currentTime*1000),true,200)
+					if( str!= _this.LyricList[x-1]){
+						x = _this.LyricList.push(str)
+						// console.log(x)
+						if(_this.LyricList.length > 2){
+							x = x-1
+							_this.LyricList.splice(0,1)
+						}
+						// console.log(_this.LyricList)
+					}
+				}, 100)
+			},
+			
+			Lrc(requestUrl) {
+			    // lrc歌词解析器 依赖axios库
+			    this.flagTags = {};// 解析的标志标签 [by:xiaohuohu]
+			    this.timeTags = {};// 解析的歌词 [3:20.3]hello world
+			    this.requestText = '';// 请求的lrc内容
+			    this.canPlay = 0;// 当前状态 0 未加载 1 获取失败 2 解析失败 3 解析成功
+			    this.canPlayInf = ['正在搜寻歌词,请稍后', '未找到歌词', '歌外无法解析'];// 与canPlay 对应提示 除3之外
+			    this.lastWord = '';// 上一次歌词
+			    this.getLrc = function () {
+			        // 异步获取歌词
+			        let _this = this;
+			        _this.canPlay = 0;
+			        axios.get(requestUrl).then(function (response) {
+			            let data = response.data.lrc.lyric;// 获取数据
+						// console.log(data)
+			            _this.requestText = data;
+			            _this.flagTags = _this.getFlagTags(data);// 解析标志
+			            _this.timeTags = _this.getTimeTags(data);// 解析歌词
+			            // 判断是否成功解析,不为空.
+			            _this.canPlay = (Object.keys(_this.timeTags).length == 0) ? 2 : 3;// 设置当前状态
+			        }).catch(function (error) {
+			            _this.canPlay = 1;// 设置错误状态
+			            console.log(error);
+			        });
+			    }
+			    this.getRequestText = function () {
+			        // 获取lrc源文件
+			        return this.requestText;
+			    }
+			    this.getFlagTags = function (text) {
+			        // 解析标记标签 text lrc文本 
+			        // return {标签名:标签值} 例如: {by:xiaohuohu}
+			        let res = {};
+			        if (typeof (text) !== 'string') { return res; }// 检查参数
+			        let find = text.match(/\[[A-Za-z]+\:[^\[\]]*\]/g);// 匹标志标签
+			        for (let findKey in find) {
+			            let textArrayItem = find[findKey];
+			            let tagName = textArrayItem.substring(textArrayItem.indexOf('[') + 1, textArrayItem.indexOf(':'));
+			            let tagText = textArrayItem.substring(textArrayItem.indexOf(':') + 1, textArrayItem.indexOf(']'));
+			            res[tagName] = tagText;
+			        }
+			        return res;
+			    }
+			    this.getWord = function (time, flag = true, timeDeviation = 50) {
+			        // 获取解析歌词 time: 毫秒 flag:是否模糊匹配 若为 false 且找不到时返回 '' 
+			        // timeDeviation:模糊时间 (time - timeDeviation< time < time + timeDeviation),flag 为true 时生效
+			        if (this.canPlay == 3) {// 解析成功
+			            if (flag) {// 模糊匹配
+			                for (let key in this.timeTags) {
+			                    // 获取大概区间的第一个歌词
+			                    if ((key >= time - timeDeviation) && (key <= time + timeDeviation)) {
+			                        this.lastWord = this.timeTags[key];
+			                        return this.timeTags[key];
+			                    } else if (key > time + timeDeviation) {// 未找到返回上一次的歌词
+			                        return this.lastWord;
+			                    }
+			                }
+			            } else {// 精确匹配
+			                let res = this.timeTags[time];
+			                return res ? res : '';
+			            }
+			        } else {// 其它状态
+			            return this.canPlayInf[this.canPlay];
+			        }
+			    }
+			    this.getTag = function () {
+			        // 获取歌曲信息
+			        return this.flagTags;
+			    }
+			    this.getTimeTags = function (text) {
+			        // 解析歌词标签 text lrc全部文本
+			        // return {time:word} 例如{12300:'hello world'}
+			        // [m:s.ms] or [m:s:ms] or [m:s], [1:2.3] or [01:02.03] or [01:02] ...
+			        let res = {};// 结果
+			        if (typeof (text) != 'string') { return res; }// 检查参数
+			        let textArray = text.split('\n');// 歌词拆分
+			        let timeRule = [60000, 1000, 1];// 对应位数的毫秒数
+			        let addTime = 0;// 时间补偿
+			        for (let textArrayKey in textArray) {
+			            let textArrayItem = textArray[textArrayKey];
+			            if (textArrayItem.match(/(?:\[\d+\:\d+(?:[.:]\d+)?\])+.*/)) {// 判断是否符合歌词的规则
+			                let findWord = textArrayItem.replace(/(?:\[\d+\:\d+(?:[.:]\d+)?\])+/g, '').trim();// 歌去除时间保留歌词,并去除两端多余空格
+			                if (findWord) {// 去除歌词为空的项
+			                    let findTime = textArrayItem.match(/(?:\[\d+\:\d+(?:[.:]\d+)?\])/g);// 匹配多个时间 例如 [1:2.3][4:2.4]hello world
+			                    for (let findTimeKey in findTime) {
+			                        let findTimeItem = findTime[findTimeKey].match(/\d+/g);// 切割每一个时间的m s ms部分
+			                        let nowTime = addTime;// 初始为偏移时间 解决[offset:-232]操作
+			                        for (let x = 0; x < findTimeItem.length; x++) {
+			                            nowTime += parseInt(findTimeItem[x]) * timeRule[x];// 分钟,秒,毫秒转换为转毫秒之后累加
+			                        }
+			                        res[nowTime > 0 ? nowTime : 0] = findWord;// 限制下线时间 0
+			                    }
+			                }
+			            } else if (textArrayItem.match(/^\[offset\:\-?[1-9]\d+\]$/)) {// 匹配偏移时间 解决[offset:-232]操作
+			                // [offset:-232]正值表示整体提前，负值相反
+			                addTime -= parseInt(textArrayItem.substring(textArrayItem.indexOf(':') + 1, textArrayItem.length));
+			            }
+			        }
+			        return res;
+			    }
+			}
+			
+		}
+	})
+</script>
+
+
+<script>
+	// var audio = document.getElementById('myaudio');
+	// time = setInterval(function(){
+	// 	var audio = document.getElementById('myaudio');
+	// 	console.log(audio.currentTime)
+	// },1000)
+	// function onPlay(){
+	// 	console.log('play')
+	// 	GetLrc()
+	// }
+	// function onPause(){
+	// 	console.log('pause')
+	// 	clearInterval(timeint)
+	// }
+	// function GetLrc(){
+	// 	let lrcob = new Lrc('http://localhost:3000/lyric?id=33894312');
+	// 	lrcob.getLrc();// 加载lrc歌词文件
+	// 	// let time = 0;
+	// 	timeint = setInterval(function(){// 模仿audio,video时间进度条
+	// 	    //lrcob.getWord(time,true,50);// 模糊获取歌词 50为模糊值
+	// 	    // lrcob.getWord(time,false); // 精确获取歌词
+	// 		var audio = document.getElementById('myaudio');
+	// 		// console.log(Math.trunc(audio.currentTime*1000))
+	// 		console.log(lrcob.getWord(Math.trunc(audio.currentTime*1000),true,200))
+	// 	}, 100)
+	// }
+	
+
+	function con() {
+		var audio = document.getElementById('myaudio');
+		audio.play()
+	}
+	function repeat() {
+	    var audio = document.getElementById('myaudio');
+	    audio.currentTime = 0; //重新播放
+	}
+	function control() {
+	    var audio = document.getElementById('myaudio');
+	    if (audio !== null) {
+	        if (audio.paused) {
+	            audio.play(); // 播放
+	        } else {
+	            audio.pause(); // 暂停
+	        }
+	    }
+	}
+	function getTime() {
+		setTimeout(function () {
+			var duration = $("#myaudio");
+			console.log(duration)
+			if(isNaN(duration)){
+				getTime();
+			}
+			else{
+				console.info("该歌曲的总时间为："+$("#myaudio")[0].duration+"秒")
+			}
+		}, 10);
+	}
+	function Lrc(requestUrl) {
+	    // lrc歌词解析器 依赖axios库
+	    this.flagTags = {};// 解析的标志标签 [by:xiaohuohu]
+	    this.timeTags = {};// 解析的歌词 [3:20.3]hello world
+	    this.requestText = '';// 请求的lrc内容
+	    this.canPlay = 0;// 当前状态 0 未加载 1 获取失败 2 解析失败 3 解析成功
+	    this.canPlayInf = ['正在搜寻歌词,请稍后', '未找到歌词', '歌词无法解析'];// 与canPlay 对应提示 除3之外
+	    this.lastWord = '';// 上一次歌词
+	    this.getLrc = function () {
+	        // 异步获取歌词
+	        let _this = this;
+	        _this.canPlay = 0;
+	        axios.get(requestUrl).then(function (response) {
+	            let data = response.data.lrc.lyric;// 获取数据
+				// console.log(data)
+	            _this.requestText = data;
+	            _this.flagTags = _this.getFlagTags(data);// 解析标志
+	            _this.timeTags = _this.getTimeTags(data);// 解析歌词
+	            // 判断是否成功解析,不为空.
+	            _this.canPlay = (Object.keys(_this.timeTags).length == 0) ? 2 : 3;// 设置当前状态
+	        }).catch(function (error) {
+	            _this.canPlay = 1;// 设置错误状态
+	            console.log(error);
+	        });
+	    }
+	    this.getRequestText = function () {
+	        // 获取lrc源文件
+	        return this.requestText;
+	    }
+	    this.getFlagTags = function (text) {
+	        // 解析标记标签 text lrc文本 
+	        // return {标签名:标签值} 例如: {by:xiaohuohu}
+	        let res = {};
+	        if (typeof (text) !== 'string') { return res; }// 检查参数
+	        let find = text.match(/\[[A-Za-z]+\:[^\[\]]*\]/g);// 匹标志标签
+	        for (let findKey in find) {
+	            let textArrayItem = find[findKey];
+	            let tagName = textArrayItem.substring(textArrayItem.indexOf('[') + 1, textArrayItem.indexOf(':'));
+	            let tagText = textArrayItem.substring(textArrayItem.indexOf(':') + 1, textArrayItem.indexOf(']'));
+	            res[tagName] = tagText;
+	        }
+	        return res;
+	    }
+	    this.getWord = function (time, flag = true, timeDeviation = 50) {
+	        // 获取解析歌词 time: 毫秒 flag:是否模糊匹配 若为 false 且找不到时返回 '' 
+	        // timeDeviation:模糊时间 (time - timeDeviation< time < time + timeDeviation),flag 为true 时生效
+	        if (this.canPlay == 3) {// 解析成功
+	            if (flag) {// 模糊匹配
+	                for (let key in this.timeTags) {
+	                    // 获取大概区间的第一个歌词
+	                    if ((key >= time - timeDeviation) && (key <= time + timeDeviation)) {
+	                        this.lastWord = this.timeTags[key];
+	                        return this.timeTags[key];
+	                    } else if (key > time + timeDeviation) {// 未找到返回上一次的歌词
+	                        return this.lastWord;
+	                    }
+	                }
+	            } else {// 精确匹配
+	                let res = this.timeTags[time];
+	                return res ? res : '';
+	            }
+	        } else {// 其它状态
+	            return this.canPlayInf[this.canPlay];
+	        }
+	    }
+	    this.getTag = function () {
+	        // 获取歌曲信息
+	        return this.flagTags;
+	    }
+	    this.getTimeTags = function (text) {
+	        // 解析歌词标签 text lrc全部文本
+	        // return {time:word} 例如{12300:'hello world'}
+	        // [m:s.ms] or [m:s:ms] or [m:s], [1:2.3] or [01:02.03] or [01:02] ...
+	        let res = {};// 结果
+	        if (typeof (text) != 'string') { return res; }// 检查参数
+	        let textArray = text.split('\n');// 歌词拆分
+	        let timeRule = [60000, 1000, 1];// 对应位数的毫秒数
+	        let addTime = 0;// 时间补偿
+	        for (let textArrayKey in textArray) {
+	            let textArrayItem = textArray[textArrayKey];
+	            if (textArrayItem.match(/(?:\[\d+\:\d+(?:[.:]\d+)?\])+.*/)) {// 判断是否符合歌词的规则
+	                let findWord = textArrayItem.replace(/(?:\[\d+\:\d+(?:[.:]\d+)?\])+/g, '').trim();// 歌去除时间保留歌词,并去除两端多余空格
+	                if (findWord) {// 去除歌词为空的项
+	                    let findTime = textArrayItem.match(/(?:\[\d+\:\d+(?:[.:]\d+)?\])/g);// 匹配多个时间 例如 [1:2.3][4:2.4]hello world
+	                    for (let findTimeKey in findTime) {
+	                        let findTimeItem = findTime[findTimeKey].match(/\d+/g);// 切割每一个时间的m s ms部分
+	                        let nowTime = addTime;// 初始为偏移时间 解决[offset:-232]操作
+	                        for (let x = 0; x < findTimeItem.length; x++) {
+	                            nowTime += parseInt(findTimeItem[x]) * timeRule[x];// 分钟,秒,毫秒转换为转毫秒之后累加
+	                        }
+	                        res[nowTime > 0 ? nowTime : 0] = findWord;// 限制下线时间 0
+	                    }
+	                }
+	            } else if (textArrayItem.match(/^\[offset\:\-?[1-9]\d+\]$/)) {// 匹配偏移时间 解决[offset:-232]操作
+	                // [offset:-232]正值表示整体提前，负值相反
+	                addTime -= parseInt(textArrayItem.substring(textArrayItem.indexOf(':') + 1, textArrayItem.length));
+	            }
+	        }
+	        return res;
+	    }
+	}
+
+</script>
+
+</html>
